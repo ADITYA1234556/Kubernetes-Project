@@ -82,7 +82,14 @@ sudo chmod 666 /var/run/docker.sock
 docker ps 
 ```
 
-### 2. Run a docker container with sonarqube image:
+### 2. Configure sonarqube server: 
+```bash 
+Create a project with the name and key BoardGame as we will mention this is jenkins pipeline
+Go to administration -> configuration -> webhook -> name -> url http://<JenkinsPublicIP>:8080/sonarqube-webhook/
+Create the webhook
+```
+
+### 3. Run a docker container with sonarqube image:
 ```bash 
 docker run -d --name sonar -p 9000:9000 sonarqube:lts-community
 ```
@@ -121,6 +128,23 @@ cat /nexus-data/admin.password
 docker exec -it <nexuscontainerid> /bin/bash
 cat /nexus-data/admin.password
 ```
+
+### 4. Copy the maven release and maven snapshot URL to add to pom.xml:
+```bash 
+http://35.176.111.10:8081/repository/maven-snapshots/
+http://35.176.111.10:8081/repository/maven-snapshots/
+<distributionManagement>
+        <repository>
+            <id>maven-releases</id>
+            <url>http://35.176.111.10:8081/repository/maven-releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>maven-snapshots</id>
+            <url>http://35.176.111.10:8081/repository/maven-snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
+```
+
 ## **Phase 5: Jenkins server setup**
 
 ### 1. Install Jenkins: 
@@ -161,9 +185,34 @@ sudo chmod 666 /var/run/docker.sock
 docker ps 
 ```
 
-### 3. Install docker: 
+### 3. Install the following Plugins on jenkins server: 
 ```bash 
-Jenkins
+1. Eclipse Temurin installerVersion - helps with multiple versions of jdk installations
+2. Config File Provider - helps to create settings.xml file
+3. Pipeline Maven Integration - needed during nexus stage
+4. SonarQube Scanner - analyse, generate report and send it to sonarqube server
+5. Docker 
+6. Docker Pipeline
+7. docker-build-step
+8. Kubernetes
+9. Kubernetes Client API
+10. Kubernetes Credentials
+11. Kubernetes CLI
 ```
 
+### 4. Configure the plugins and Create the pipeline: 
+```bash 
+jenkins -> manage jenkins -> system (Configure servers)
+jenkins -> manage jenkins -> tools (Configure installations)
+New job -> pipeline job
+```
+
+### 5. Install trivy on the server: 
+```bash 
+sudo apt-get install wget apt-transport-https gnupg lsb-release
+wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee -a /etc/apt/sources.list.d/trivy.list
+sudo apt-get update
+sudo apt-get install -y trivy
+```
 ## **Phase 5: Initial Kubernetes cluster Setup and Deployment**
