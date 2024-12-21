@@ -226,8 +226,11 @@ kubectl version --short --client
 ```
 
 ## **Phase 6: Initial Kubernetes cluster Setup and Deployment**
+
 ### 1. Follow the eks-steps.md file inside the kubernetes directory in this repo. This is to configure role based access controls.
+
 ### 2. Once the service account, role and rolebindings have been created and applied for the jenkins user
+
 ### 3. Create a service token for jenkins service account 
 ```bash
 apiVersion: v1
@@ -239,4 +242,84 @@ metadata:
   annotations:
     kubernetes.io/service-account.name: jenkins
 ```
+
 ### 4. Take the token and create a credentials in jenkins as kind secret text.
+
+
+## **Phase 6: Create a monitor server and its setup**
+
+### 1. Install prometheus and grafana.
+```bash
+#PROMETHEUS
+wget https://github.com/prometheus/prometheus/releases/download/v3.1.0-rc.0/prometheus-3.1.0-rc.0.linux-amd64.tar.gz
+tar -xvzf prometheus-3.1.0-rc.0.linux-amd64.tar.gz
+cd prometheus-3.1.0-rc.0.linux-amd64/
+./prometheus &
+
+#GRAFANA
+sudo apt-get install -y adduser libfontconfig1 musl
+wget https://dl.grafana.com/enterprise/release/grafana-enterprise_11.4.0_amd64.deb
+sudo dpkg -i grafana-enterprise_11.4.0_amd64.deb
+sudo /bin/systemctl start grafana-server
+
+#BLACKBOX EXPORTER
+wget https://github.com/prometheus/blackbox_exporter/releases/download/v0.25.0/blackbox_exporter-0.25.0.linux-amd64.tar.gz
+tar -xvzf blackbox_exporter-0.25.0.linux-amd64.tar.gz
+cd blackbox_exporter-0.25.0.linux-amd64/
+./blackbox_exporter &
+```
+
+### 2. Install node exporter on jenkins server
+```bash 
+wget https://github.com/prometheus/node_exporter/releases/download/v1.8.2/node_exporter-1.8.2.linux-amd64.tar.gz
+tar -xvzf node_exporter-1.8.2.linux-amd64.tar.gz
+cd node_exporter-1.8.2.linux-amd64/
+./node_exporter &
+```
+
+### 3. On the prometheus server configure the prometheus.yml a sample code is given in the repo.
+
+**IMAGES**
+
+<div align="center">
+  <!-- Application UI -->
+  <img src="application.png" alt="Application UI" width="100%" height="100%">
+  <p align="center"><strong>Application UI</strong></p>
+</div>
+
+<div align="center">
+  <!-- Jenkins Pipeline -->
+  <img src="jenkins-ui.png" alt="Jenkins Pipeline" width="100%" height="100%">
+  <p align="center"><strong>Jenkins Pipeline</strong></p>
+</div>
+
+<div align="center">
+  <!-- Grafana-jenkins UI -->
+  <img src="grafana-jenkins.png" alt="Grafana-jenkins UI" width="100%" height="100%">
+  <p align="center"><strong>Grafana-jenkins UI</strong></p>
+</div>
+
+<div align="center">
+  <!-- Grafana-kubernetesapp UI -->
+  <img src="kubernetes-app-blackbox-exporter.png" alt="Grafana-kubernetesapp UI" width="100%" height="100%">
+  <p align="center"><strong>Grafana-kubernetesapp UI</strong></p>
+</div>
+
+<div align="center">
+  <!-- Prometheus UI -->
+  <img src="prometheus-ui.png" alt="Prometheus UI" width="100%" height="100%">
+  <p align="center"><strong>Prometheus UI</strong></p>
+</div>
+
+<div align="center">
+  <!-- sonarqube-nexus -->
+  <img src="sonarqube-nexus.png" alt="sonarqube-nexus" width="100%" height="100%">
+  <p align="center"><strong>sonarqube-nexus ui</strong></p>
+</div>
+
+<div align="center">
+  <!-- sonatype-repo -->
+  <img src="sonatype-repo.png" alt="sonatype-repo" width="100%" height="100%">
+  <p align="center"><strong>sonatype-repo</strong></p>
+</div>
+
