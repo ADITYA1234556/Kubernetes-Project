@@ -87,6 +87,7 @@ docker ps
 Create a project with the name and key BoardGame as we will mention this is jenkins pipeline
 Go to administration -> configuration -> webhook -> name -> url http://<JenkinsPublicIP>:8080/sonarqube-webhook/
 Create the webhook
+Sonarqube webhook settings are very crucial for the sonarqube server to send the quality gate data back to the Jenkins server
 ```
 
 ### 3. Run a docker container with sonarqube image:

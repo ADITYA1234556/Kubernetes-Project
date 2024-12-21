@@ -42,7 +42,25 @@ pipeline {
         stage('Quality Gate Check') {
             steps {
                 script {
-                    waitForQualityGate abortPipeline: false, credentialsId: 'sonar-token'
+                    def retries = 3
+                    def delay = 60
+                    def result = null
+
+                    for (int i = 0; i < retries; i++) {
+                        result = waitForQualityGate abortPipeline: false, credentialsId: 'sonar-token'
+                        if (result.status == 'OK') {
+                            echo "Quality Gate Passed"
+                            break
+                        } else if (result.status != 'IN_PROGRESS') {
+                            error "Quality Gate failed: ${result.status}"
+                        }
+                        echo "Quality Gate in progress... retrying in ${delay} seconds"
+                        sleep(delay)
+                    }
+
+                    if (result.status == 'IN_PROGRESS') {
+                        error "Quality Gate still stuck after ${retries} retries"
+                    }
                 }
             }
         }
