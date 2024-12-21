@@ -23,7 +23,7 @@ sudo kubeadm join 172.31.20.145:6443 --token mhi5wy.3385kwfnaytaa7mf \
         --discovery-token-ca-cert-hash sha256:ffce702b1a02ff38f47503e83b74d7ad188f49daa31bee1a98e3813b73234a87
 ```
 
-### 9. Configure Kubernetes Cluster [On MasterNode]
+### 5. Configure Kubernetes Cluster [On MasterNode]
 
 ```bash
 mkdir -p $HOME/.kube
@@ -31,19 +31,19 @@ sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
 sudo chown $(id -u):$(id -g) $HOME/.kube/config
 ```
 
-### 10. Deploy Networking Solution (Calico) [On MasterNode]
+### 6. Deploy Networking Solution (Calico) [On MasterNode]
 
 ```bash
 kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
 ```
 
-### 11. Deploy Ingress Controller (NGINX) [On MasterNode]
+### 7. Deploy Ingress Controller (NGINX) [On MasterNode]
 
 ```bash
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.49.0/deploy/static/provider/baremetal/deploy.yaml
 ```
 
-### 12. Use Kubeaudit to audit the cluster for security information [On MasterNode]
+### 8. Use Kubeaudit to audit the cluster for security information [On MasterNode]
 
 ```bash
 go to https://github.com/Shopify/kubeaudit/releases
@@ -215,4 +215,27 @@ echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main |
 sudo apt-get update
 sudo apt-get install -y trivy
 ```
-## **Phase 5: Initial Kubernetes cluster Setup and Deployment**
+
+### 6. Install kubectl on Jenkins server
+```bash 
+curl -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.19.6/2021-01-05/bin/linux/amd64/kubectl
+chmod +x ./kubectl
+sudo mv ./kubectl /usr/local/bin
+kubectl version --short --client
+```
+
+## **Phase 6: Initial Kubernetes cluster Setup and Deployment**
+### 1. Follow the eks-steps.md file inside the kubernetes directory in this repo. This is to configure role based access controls.
+### 2. Once the service account, role and rolebindings have been created and applied for the jenkins user
+### 3. Create a service token for jenkins service account 
+```bash
+apiVersion: v1
+kind: Secret
+type: kubernetes.io/service-account-token
+metadata:
+  name: mysecretname
+  namespace: webapps
+  annotations:
+    kubernetes.io/service-account.name: jenkins
+```
+### 4. Take the token and create a credentials in jenkins as kind secret text.
